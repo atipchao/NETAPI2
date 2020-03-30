@@ -56,5 +56,56 @@ namespace NETAPI2.Controllers
             }
         }
 
+        public HttpResponseMessage Delete(int id)
+        {
+            try
+            {
+                using (EmpDBEntities entities = new EmpDBEntities())
+                {
+                    var emp = entities.Employees.FirstOrDefault(e => e.Id == id);
+                    if (emp != null)
+                    {
+                        entities.Employees.Remove(entities.Employees.FirstOrDefault(e => e.Id == id));
+                        entities.SaveChanges();
+                        return Request.CreateResponse(HttpStatusCode.OK, emp);
+                    }
+                    else
+                    {
+                        return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Emp with Id: " + id.ToString() + " NOT FOUND!");
+                    }
+                }
+
+            }catch(Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
+            }
+
+        }
+
+        public HttpResponseMessage Put(  int id, [FromBody] Employee emp)
+        {
+            using (EmpDBEntities entities = new EmpDBEntities())
+            {
+                var entity = entities.Employees.FirstOrDefault(e => e.Id == id);
+                if (entity == null) {
+                    return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Emp with Id: " + id.ToString() + " NOT FOUND!");
+                }
+                try
+                {
+                    
+                    entity.Name = emp.Name;
+                    entity.Email = emp.Email;
+                    entity.PhotoPath = emp.PhotoPath;
+                    entity.Department = emp.Department;
+
+                    entities.SaveChanges();
+                    return Request.CreateResponse(HttpStatusCode.OK, entity);
+                }
+                catch (Exception ex)
+                {
+                    return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
+                }
+            }
+        }
     }
 }
